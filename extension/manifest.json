@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "双语阅读 · 自带 API",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "网页逐段双语翻译与本地文字版 PDF 对照阅读。使用你自己的大模型 API。",
   "minimum_chrome_version": "120",
   "permissions": ["activeTab", "scripting", "storage"],

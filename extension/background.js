@@ -1,4 +1,7 @@
 import { DEFAULTS, validateConfig, buildRequest, parseTranslations, digest } from './core.js';
+import { createSourceSessions } from './pdf-source-session.js';
+const sourceSessions = createSourceSessions(chrome);
+chrome.tabs.onUpdated?.addListener((tabId, change) => sourceSessions.updated(tabId, change));
 const jobs = new Map(), pdfJobs = new Map(), controllers = new Map(), pdfPending = new Map();
 let busy = 0, cacheWrites = Promise.resolve(), pdfStarts = Promise.resolve(); const waiters = [];
 const pdfURL = () => chrome.runtime.getURL('pdf.html');
@@ -219,6 +222,14 @@ async function handlePDF(m, sender) {
 async function handle(m, sender) {
   await ready;
   if (!m || typeof m.type !== 'string') throw new Error('无效消息。');
+  if (m.type.startsWith('PDF_SOURCE_')) {
+    const result = await sourceSessions.handle(m, sender);
+    if (m.type === 'PDF_SOURCE_RETURN' && result.returned) {
+      abort(sender.tab.id);
+      for (const j of pdfJobs.values()) if (j.tabId === sender.tab.id) { j.active = false; await savePDF(j); }
+    }
+    return result;
+  }
   if (m.type === 'PDF_START') { const start = pdfStarts.then(() => handlePDF(m, sender)); pdfStarts = start.catch(() => {}); return start; }
   if (m.type.startsWith('PDF_')) return handlePDF(m, sender);
   if (m.type === 'TRANSLATE') return translate(m, sender);
@@ -253,6 +264,7 @@ async function handle(m, sender) {
 }
 chrome.runtime.onMessage.addListener((m, sender, respond) => { handle(m, sender).then(v => respond({ ok: true, ...v })).catch(e => respond({ ok: false, error: e.message || '操作失败。' })); return true; });
 chrome.tabs.onRemoved.addListener(async id => {
+  sourceSessions.removed(id);
   await ready; abort(id); jobs.delete(id); await chrome.storage.session.remove('job:' + id);
   for (const j of pdfJobs.values()) if (j.tabId === id) { pdfJobs.delete(j.taskId); pdfPending.delete(j.taskId); await chrome.storage.session.remove('pdfJob:' + j.taskId); }
 });

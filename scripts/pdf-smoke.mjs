@@ -137,6 +137,32 @@ try {
   assert.ok((await bg('pdfSmokeCalls.flat().every(s=>!s.text.includes("Second PDF")&&!s.text.includes("second page"))')));
   assert.match(await ui(`document.querySelector('#blocks').textContent`), /等待翻译/);
   await click('prev'); await pageReady(1); await translated();
+  await until(() => ui(`document.querySelectorAll('.pdf-translation-box').length===3`), 'inline translated overlay');
+  assert.ok(await ui(`document.querySelectorAll('.pdf-source-mask').length>0`), 'successful blocks have source masks');
+  if (process.argv.includes('--screenshot')) {
+    await mkdir(new URL('../work/', import.meta.url), { recursive: true });
+    const shot = await page.call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
+    await writeFile(new URL('../work/pdf-inline.png', import.meta.url), Buffer.from(shot.data, 'base64'));
+  }
+  const maskLeft = await ui(`document.querySelector('.pdf-source-mask').style.left`);
+  const boxLeft = await ui(`parseFloat(document.querySelector('.pdf-translation-box').style.left)`);
+  await ui(`document.querySelector('.pdf-move-handle').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}))`);
+  assert.equal(await ui(`parseFloat(document.querySelector('.pdf-translation-box').style.left)`), boxLeft + 1);
+  assert.equal(await ui(`document.querySelector('.pdf-source-mask').style.left`), maskLeft, 'moving translation never moves source mask');
+  await ui(`document.querySelector('.pdf-overlay-tools button').click()`);
+  assert.ok(await ui(`document.querySelector('.pdf-overlay-dialog')?.open && document.querySelector('.pdf-overlay-dialog').textContent.includes('中文测试译文')`));
+  await ui(`document.querySelector('.pdf-overlay-dialog button').click()`);
+  await ui(`document.querySelector('#mode').value='original';document.querySelector('#mode').dispatchEvent(new Event('change'))`);
+  await until(() => ui(`document.querySelectorAll('.pdf-source-mask,.pdf-translation-box').length===0`), 'original removes masks');
+  await ui(`document.querySelector('#mode').value='sideBySide';document.querySelector('#mode').dispatchEvent(new Event('change'))`);
+  await until(() => ui(`document.querySelector('#translatedCanvas').width>1 && document.querySelector('#translatedCanvasHost .pdf-translation-box')!==null`), 'two real PDF canvases');
+  assert.ok(await ui(`document.querySelector('#canvas').width*document.querySelector('#canvas').height+document.querySelector('#translatedCanvas').width*document.querySelector('#translatedCanvas').height<=12000000`));
+  await ui(`document.querySelector('#mode').value='list';document.querySelector('#mode').dispatchEvent(new Event('change'))`);
+  await until(() => ui(`!document.querySelector('#textPane').hidden && document.querySelectorAll('.pdf-source-mask').length===0`), 'list fallback');
+  await ui(`document.querySelector('#mode').value='inline';document.querySelector('#mode').dispatchEvent(new Event('change'))`);
+  await until(() => ui(`document.querySelector('#canvasHost .pdf-translation-box')!==null`), 'return inline');
+  assert.equal(await calls(), 1, 'display modes, drawer and adjustments cannot call model');
+  console.log('PASS: inline masks, bounded keyboard adjustment, full-text drawer and original/side-by-side/list modes without API calls.');
   await click('next'); await pageReady(2);
   assert.equal(await calls(), 1, 'page 2 must not auto-translate by default');
   await bg('pdfSmokeDelay=0');
@@ -189,6 +215,13 @@ try {
   assert.equal(await calls(), beforeAuto, 'stop during page load must not create a later automatic-translation timer');
   await ui('chrome.runtime.sendMessage=originalSend');
   console.log('PASS: model change replaces old results; stop during page loading defeats automatic translation.');
+  await ui(`document.querySelector('#auto').checked=true`);
+  await click('prev'); await pageReady(1); await click('next'); await pageReady(2);
+  await ui(`document.querySelector('#mode').value='original';document.querySelector('#mode').dispatchEvent(new Event('change'))`);
+  await until(async () => (await calls()) === beforeAuto + 1, 'mode switch preserves page automatic-translation intent'); await translated();
+  assert.equal(await calls(), beforeAuto + 1);
+  await click('stop');
+  console.log('PASS: display-mode change preserves explicitly enabled automatic page translation.');
   assert.equal(readerErrors.length, 0, JSON.stringify(readerErrors));
   console.log('PASS: PDF real-extension smoke complete (mock model only).');
 } catch (error) {
