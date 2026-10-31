@@ -1,6 +1,6 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>双语阅读</title><link rel="stylesheet" href="ui.css"></head>
 <body class="popup"><main><header><h1>双语阅读</h1><button id="settings">设置</button></header><p class="muted">英语原文在上，简体中文在下。</p><div id="model" class="notice">正在读取配置…</div>
 <label for="scope">翻译范围</label><select id="scope"><option value="article">正文优先</option><option value="page">页面文本</option></select>
-<button id="start" class="primary wide">翻译此页</button><div class="row"><button id="pause">暂停</button><button id="hide">隐藏译文</button><button id="restore">恢复原文</button></div>
+<button id="pdf" class="wide">PDF 双语阅读 · 打开本地文件</button><button id="start" class="primary wide">翻译此页</button><div class="row"><button id="pause">暂停</button><button id="hide">隐藏译文</button><button id="restore">恢复原文</button></div>
 <div class="stats" id="stats">尚未开始翻译</div><div class="row"><button id="retry">重试失败段落</button><button id="extend" hidden>增加额度</button></div><div id="status" class="status" role="status"></div>
 <small>开启后，待翻译文本会发送到你配置的 API。已发出的请求可能计费。</small></main><script type="module" src="popup.js"></script></body></html>

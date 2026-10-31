@@ -14,6 +14,7 @@ async function update() {
 }
 async function act(fn) { $('status').textContent = ''; try { await fn(); await update(); } catch (e) { $('status').textContent = e.message; $('status').className = 'status error'; } }
 $('settings').onclick = () => chrome.runtime.openOptionsPage();
+$('pdf').onclick = () => chrome.tabs.create({ url: chrome.runtime.getURL('pdf.html') });
 $('start').onclick = () => act(async () => { $('start').disabled = true; try { await request({ type: 'START', tabId, scope: $('scope').value }); } finally { $('start').disabled = false; } });
 for (const action of ['pause', 'hide', 'restore', 'retry', 'extend']) $(action).onclick = () => act(async () => {
   const r = await chrome.tabs.sendMessage(tabId, { type: 'CONTROL', action }, { frameId: 0 }); if (!r?.ok) throw new Error(r?.error || '操作失败'); render(r);

@@ -1,4 +1,16 @@
 {
-  "name": "bilingual-reader", "version": "1.0.0", "private": true, "type": "module",
-  "scripts": { "test": "node --test tests/*.test.mjs", "check": "node scripts/check.mjs", "smoke": "node scripts/extension-smoke.mjs" }
+  "name": "bilingual-reader",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check.mjs",
+    "smoke": "node scripts/extension-smoke.mjs",
+    "vendor:pdf": "node scripts/vendor-pdfjs.mjs",
+    "smoke:pdf": "node scripts/pdf-smoke.mjs"
+  },
+  "devDependencies": {
+    "pdfjs-dist": "6.4.299"
+  }
 }

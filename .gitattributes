@@ -6,3 +6,6 @@
 *.css text eol=lf
 *.md text eol=lf
 *.png binary
+*.pdf binary
+# Keep vendored resources byte-identical to their upstream checksums.
+extension/vendor/** -text -whitespace
