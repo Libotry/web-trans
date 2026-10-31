@@ -1,0 +1,11 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>双语阅读 · 设置</title><link rel="stylesheet" href="ui.css"></head>
+<body><main><header><h1>双语阅读 · 设置</h1><small>自带 API · 本地配置</small></header><p class="notice">使用兼容 Chat Completions 的大模型 API。网页文本直接发送到你指定的服务；扩展没有中转服务器。连接测试会产生一次短请求。</p>
+<form id="form"><label for="endpoint">完整 HTTPS 请求地址</label><input id="endpoint" type="url" required placeholder="https://你的服务域名/v1/chat/completions" autocomplete="off"><small>填写完整接口路径，不是官网首页；不支持查询参数鉴权。</small>
+<label for="model">模型名称</label><input id="model" required placeholder="填写服务商提供的模型 ID" autocomplete="off">
+<label for="key">API Key</label><input id="key" type="password" autocomplete="off" placeholder="填写你的 API Key"><small id="keyHint">密钥默认仅在当前浏览器会话保存。</small>
+<div class="checks"><label><input id="remember" type="checkbox"> 记住 Key（持久保存在本机，不使用 Chrome 同步）</label><label><input id="jsonMode" type="checkbox"> JSON 输出模式（仅在服务支持时开启）</label></div>
+<details><summary>请求限制与译文样式</summary><div class="row"><div><label for="timeout">超时（5–25 秒）</label><input id="timeout" type="number" min="5" max="25" required></div><div><label for="limit">单页请求上限（1–1000）</label><input id="limit" type="number" min="1" max="1000" required></div></div>
+<div class="row"><div><label for="fontSize">译文字号比例（70–130%）</label><input id="fontSize" type="number" min="70" max="130" required></div><div><label for="gap">上方间距（0–30px）</label><input id="gap" type="number" min="0" max="30" required></div></div>
+<label for="color">译文颜色（留空跟随网页）</label><input id="color" placeholder="#2563eb" pattern="#[0-9a-fA-F]{6}"><label><input id="tint" type="checkbox"> 译文增加淡色背景</label><small>样式修改后，恢复原文再重新翻译即可生效。慢速推理模型可能超时，推荐响应较快的模型。</small></details>
+<div class="row"><button class="primary" type="submit">授权 API 域名并保存</button><button id="test" type="button">保存并测试连接</button></div></form>
+<div id="status" class="status" role="status"></div><hr><div class="row"><button id="clear">清除翻译缓存</button><button id="forget">删除已保存的 Key</button></div><p class="muted">Key 不会发给网页脚本。持久存储不等于加密保险箱，本机账户仍可能读取。API 服务的数据保存政策由服务商决定。恢复原文不能撤回服务端已处理的请求。</p></main><script type="module" src="options.js"></script></body></html>

@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "双语阅读 · 自带 API",
+  "version": "1.0.0",
+  "description": "保留英文原文，在每段下方显示中文。使用你自己的大模型 API。",
+  "minimum_chrome_version": "120",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "optional_host_permissions": ["https://*/*"],
+  "background": { "service_worker": "background.js", "type": "module" },
+  "action": { "default_popup": "popup.html", "default_title": "双语阅读" },
+  "options_page": "options.html",
+  "content_security_policy": { "extension_pages": "script-src 'self'; object-src 'none'" }
+}
